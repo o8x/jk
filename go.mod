@@ -3,6 +3,7 @@ module github.com/o8x/jk
 go 1.19
 
 require (
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/sirupsen/logrus v1.9.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
