@@ -4,11 +4,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"os/signal"
 	"runtime"
 	"strconv"
 	"strings"
-	"syscall"
+
+	"github.com/o8x/jk/signal"
 )
 
 type Properties map[string]any
@@ -561,8 +561,6 @@ func (a *Args) Exit(code int) {
 	os.Exit(code)
 }
 
-func (a *Args) WaitSignal() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGUSR1, syscall.SIGUSR2, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	<-c
+func (a *Args) WaitSignal() os.Signal {
+	return signal.Wait()
 }

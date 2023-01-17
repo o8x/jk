@@ -793,7 +793,7 @@ Copyright © 2023 Alex.
 
 该方法会阻塞主 goroutine 直到 USR1、USR2、INT、TERM、QUIT 其中之一的信号被触发
 
-    func (a *Args) WaitSignal()
+    func (a *Args) WaitSignal() os.Signal
 
 示例
 
