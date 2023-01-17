@@ -10,3 +10,4 @@ Go Development Kit
 * [fs](fs) : 文件系统辅助函数
 * [djb2](djb2): djb2 哈希算法
 * [response](response): JSON 响应生成器
+* [logger](logger): 带有日志切割的 Logrus 工具
