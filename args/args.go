@@ -230,7 +230,6 @@ func (a *Args) Help(err error) string {
 	}
 
 	if a.App != nil {
-		b.WriteString("\n")
 		b.WriteString(a.App.AppFullVersion())
 		b.WriteString("\n")
 		b.WriteString(fmt.Sprintf("usage: %s\n", a.App.Usage))
