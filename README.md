@@ -16,6 +16,7 @@ Go Development Kit
 * [logger](logger): 带有日志切割的 Logrus 工具
 * [sqlite](sqlite): sqlite 工具
 * [syncmap](syncmap): 支持泛型的 sync.Map
+* [rand](rand): 随机数 lib
 
 
 ## Tools 
