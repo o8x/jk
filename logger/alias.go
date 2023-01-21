@@ -11,7 +11,7 @@ func Info(format string, args ...any) {
 }
 
 func Fatal(format string, args ...any) {
-	std.Logf(logrus.FatalLevel, format, args...)
+	std.Fatal([]any{format, args}...)
 }
 
 func Warn(format string, args ...any) {
