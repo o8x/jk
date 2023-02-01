@@ -18,6 +18,7 @@ Go Development Kit
 * [syncmap](syncmap): 支持泛型的 sync.Map
 * [rand](rand): 随机数 lib
 * [http2](http2): http2 lib
+* [xor](xor): 简单的 XOR 加密和计算 lib
 
 
 ## Tools 
