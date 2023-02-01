@@ -17,6 +17,7 @@ Go Development Kit
 * [sqlite](sqlite): sqlite 工具
 * [syncmap](syncmap): 支持泛型的 sync.Map
 * [rand](rand): 随机数 lib
+* [http2](http2): http2 lib
 
 
 ## Tools 
