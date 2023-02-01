@@ -2,6 +2,7 @@ package args
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"runtime"
@@ -163,6 +164,13 @@ func (a *Args) PrintVersionExit() {
 		s := strings.TrimPrefix(*v, "base64://")
 		if s != *v {
 			if d, err := base64.StdEncoding.DecodeString(s); err == nil {
+				*v = string(d)
+			}
+		}
+
+		s = strings.TrimPrefix(*v, "hex://")
+		if s != *v {
+			if d, err := hex.DecodeString(s); err == nil {
 				*v = string(d)
 			}
 		}
