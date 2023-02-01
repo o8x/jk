@@ -25,11 +25,11 @@ func main() {
 	}
 
 	for _, d := range a.Gets("domain") {
-		if err := cert.MakeCA(d); err != nil {
+		if _, err := cert.MakeCA(d); err != nil {
 			a.PrintErrorExit(err)
 		}
 
-		if err := cert.MakeCertFromCSR(d); err != nil {
+		if _, err := cert.MakeCertFromCSR(d); err != nil {
 			a.PrintErrorExit(err)
 		}
 	}
