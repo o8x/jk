@@ -19,7 +19,11 @@ Go Development Kit
 * [rand](rand): 随机数 lib
 * [http2](http2): http2 lib
 * [xor](xor): 简单的 XOR 加密和计算 lib
-
+* [gzip](gzip): gzip 编解码器
+* [base58](base58): base58 编解码器
+* [hash](hash): sha1、sha2、md5 等 hash lib
+* [size](size): 格式化 int 类型的 size
+* [uniqid](uniqid): 基于纳秒的唯一ID生成器
 
 ## Tools 
 
