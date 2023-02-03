@@ -28,3 +28,22 @@ Go Development Kit
 ## Tools 
 
 * [cmd/cert](cmd/cert): tls 自签证书生成工具
+
+## Example
+
+```go
+package main
+
+import (
+	"github.com/o8x/jk"
+)
+
+func main() {
+	jk.Hello()
+}
+```
+
+```shell
+> go run .
+github.com/o8x/jk say hello to you
+```
