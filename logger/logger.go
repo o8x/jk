@@ -8,12 +8,9 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var std *logrus.Logger
+var std = logrus.New()
 
 func Get() *logrus.Logger {
-	if std == nil {
-		Init("info", "/dev/stdout")
-	}
 	return std
 }
 
