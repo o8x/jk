@@ -12,6 +12,17 @@ import (
 	"github.com/o8x/jk/logger"
 )
 
+func WritePacket(addr string, packet []byte) (int, error) {
+	d, err := net.Dial("udp", addr)
+	if err != nil {
+		return 0, err
+	}
+
+	defer d.Close()
+
+	return d.Write(packet)
+}
+
 func ListenAndServe(ctx context.Context, addr string, fn func([]byte, net.Addr, error)) error {
 	l, err := net.ListenPacket("udp", addr)
 	if err != nil {

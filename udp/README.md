@@ -9,6 +9,10 @@ Manual
 
     func ListenAndServe(ctx context.Context, addr string, fn func([]byte, net.Addr, error)) error 
 
+### 向 udp server 写入一个包
+
+    func WritePacket(addr string, packet []byte) (int, error)
+
 ## 示例
 
 ```go
