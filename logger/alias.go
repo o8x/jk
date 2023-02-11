@@ -6,6 +6,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func Debug(format string, args ...any) {
+	std.Logf(logrus.DebugLevel, format, args...)
+}
+
 func Info(format string, args ...any) {
 	std.Logf(logrus.InfoLevel, format, args...)
 }

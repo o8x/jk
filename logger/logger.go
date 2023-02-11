@@ -10,6 +10,14 @@ import (
 
 var std = logrus.New()
 
+func SetLevel(level logrus.Level) {
+	std.SetLevel(level)
+}
+
+func ResetLevel() {
+	SetLevel(logrus.InfoLevel)
+}
+
 func Get() *logrus.Logger {
 	return std
 }

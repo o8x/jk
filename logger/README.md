@@ -35,6 +35,10 @@ Manual
 
     func Error(format string, args ...any)
 
+### 写入 Debug 级别的日志
+
+    func Debug(format string, args ...any)
+
 ### Group
 
 补充功能，本质上是 WithField("group", strings.ToUpper(group))
@@ -52,6 +56,18 @@ Manual
 等同 logrus.WithError
 
     func WithError(err error) *logrus.Entry
+
+### SetLevel
+
+等同 logrus.SetLevel
+
+    func SetLevel(level logrus.Level)
+
+### ResetLevel
+
+SetLevel(logrus.InfoLevel)
+
+    func ResetLevel()
 
 ## 示例
 
