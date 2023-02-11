@@ -27,6 +27,7 @@ Go Development Kit
 * [crash](crash): crash recovery function
 * [tcp](tcp): tcp 服务器
 * [udp](udp): udp 服务器
+* [http](http): 一次性 http Get/Post 请求构造器
 
 ## Tools
 
