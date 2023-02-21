@@ -23,6 +23,15 @@ func (p Properties) GetInt(name string) (int, bool) {
 	return int(v), true
 }
 
+func (p Properties) GetIntDefault(name string, def int) int {
+	get, ok := p.GetInt(name)
+	if ok {
+		return get
+	}
+
+	return def
+}
+
 func (p Properties) GetInt64(name string) (int64, bool) {
 	v, ok := p.Get(name)
 	if !ok {
@@ -35,6 +44,15 @@ func (p Properties) GetInt64(name string) (int64, bool) {
 	}
 
 	return i, true
+}
+
+func (p Properties) GetInt64Default(name string, def int64) int64 {
+	get, ok := p.GetInt64(name)
+	if ok {
+		return get
+	}
+
+	return def
 }
 
 func (p Properties) IsSet(name string) bool {
@@ -56,6 +74,15 @@ func (p Properties) Get(name string) (string, bool) {
 	return s, true
 }
 
+func (p Properties) GetDefault(name, def string) string {
+	get, ok := p.Get(name)
+	if ok {
+		return get
+	}
+
+	return def
+}
+
 func (p Properties) GetBool(name string) (bool, bool) {
 	v, ok := p.Get(name)
 	if !ok {
@@ -71,6 +98,15 @@ func (p Properties) GetBool(name string) (bool, bool) {
 	}
 
 	return false, false
+}
+
+func (p Properties) GetBoolDefault(name string, def bool) bool {
+	get, ok := p.GetBool(name)
+	if ok {
+		return get
+	}
+
+	return def
 }
 
 type Flag struct {
