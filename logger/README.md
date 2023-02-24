@@ -13,6 +13,12 @@ Manual
 
     func Get() *logrus.Logger
 
+## 注入 logrus 实例
+
+使用已有的 logrus 实例替换 std logger
+
+    func Inject(l *logrus.Logger)
+
 ## API
 
 提供了以下的API，一般情况下不需要使用 Get() 获取 logger 实例

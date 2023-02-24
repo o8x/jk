@@ -22,6 +22,10 @@ func Get() *logrus.Logger {
 	return std
 }
 
+func Inject(l *logrus.Logger) {
+	std = l
+}
+
 func Init(level, file string) {
 	var output io.Writer = &lumberjack.Logger{
 		Filename:  file,
