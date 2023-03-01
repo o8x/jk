@@ -120,6 +120,7 @@ type Flag struct {
 	NoValue          bool     `json:"no_value"`
 	ValuesOnlyInEnum []string `json:"value_only_in_enum"`
 	SingleValue      bool     `json:"single_value"`
+	HookFunc         func(int, []string) error
 	values           []string
 	properties       Properties
 	exist            bool
@@ -420,6 +421,12 @@ func (a *Args) Parse() error {
 				}
 
 				arg.properties[value] = ""
+			}
+		}
+
+		if arg.HookFunc != nil {
+			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
+				return fmt.Errorf("exec hook function is error: %v", err)
 			}
 		}
 	}
