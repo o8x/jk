@@ -248,6 +248,98 @@ func (a *Args) PrintVersionExit() {
 	os.Exit(0)
 }
 
+func (a *Args) DumpExit() {
+	b := strings.Builder{}
+	if err := a.Parse(); err != nil {
+		b.WriteString(fmt.Sprintf("error: %s", err))
+		b.WriteString("\n\n")
+	}
+
+	b.WriteString("commands: ")
+	b.WriteString("\n")
+
+	for _, arg := range a.Flags {
+		b.WriteString(fmt.Sprintf("  %s", strings.Join(arg.Name, "|")))
+		b.WriteString("\n")
+
+		if arg.values != nil {
+			b.WriteString(fmt.Sprintf("\tvalues: %s (from cmdline)", strings.Join(arg.values, ", ")))
+			b.WriteString("\n")
+		}
+
+		if arg.values == nil && arg.Default != nil {
+			arg.values = arg.Default
+			b.WriteString(fmt.Sprintf("\tvalues: %s (use default)", strings.Join(arg.values, ", ")))
+			b.WriteString("\n")
+		}
+
+		if arg.values == nil && arg.Env != nil {
+			for _, name := range arg.Env {
+				if val, found := os.LookupEnv(name); found {
+					arg.values = append(arg.values, val)
+				}
+			}
+
+			b.WriteString(fmt.Sprintf("\tvalues: %s (use environment)", strings.Join(arg.values, ", ")))
+			b.WriteString("\n")
+		}
+
+		// 必填但没有填并且也没有默认值
+		if arg.Required && !arg.exist && arg.Default == nil {
+			if arg.Error == nil {
+				b.WriteString("\terror: required, but no provide value.")
+				b.WriteString("\n")
+			}
+		}
+
+		if arg.SingleValue {
+			if len(arg.values) > 1 || len(arg.values) == 0 {
+				b.WriteString(fmt.Sprintf("\terror: only one value allowed, provide values: %s", strings.Join(arg.values, ", ")))
+				b.WriteString("\n")
+			}
+		}
+
+		if arg.ValuesOnlyInEnum != nil {
+			in := 0
+			for _, v := range arg.values {
+				for _, it := range arg.ValuesOnlyInEnum {
+					if v == it {
+						in++
+					}
+				}
+			}
+
+			if in != len(arg.values) {
+				b.WriteString(fmt.Sprintf("\terror: flag %s only one value in '%s' can be selected", arg.JoinName(), arg.JoinEnum()))
+				b.WriteString("\n")
+			}
+		}
+
+		if arg.PropertyMode {
+			arg.properties = Properties{}
+			for _, value := range arg.values {
+				k, v, found := strings.Cut(value, "=")
+				if found {
+					arg.properties[k] = v
+					continue
+				}
+
+				arg.properties[value] = ""
+			}
+		}
+
+		if arg.HookFunc != nil {
+			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
+				b.WriteString(fmt.Sprintf("exec hook function is error: %v", err))
+				b.WriteString("\n")
+			}
+		}
+	}
+
+	fmt.Println(b.String())
+	a.Exit(0)
+}
+
 func (a *Args) PrintHelpExit(err error) {
 	fmt.Print(a.Help(err))
 	if err == nil {
