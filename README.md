@@ -29,6 +29,7 @@ Go Development Kit
 * [udp](udp): udp 服务器
 * [http](http): 一次性 http Get/Post 请求构造器
 * [json](json): 带有美化功能简单 json 编解码器
+* [puresqlite](puresqlite): 纯 go sqlite lib
 
 ## Tools
 
