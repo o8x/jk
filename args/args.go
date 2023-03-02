@@ -649,7 +649,7 @@ func (a *Args) Get(name string) (string, bool) {
 	}
 
 	if arg.values == nil {
-		return "", false
+		return "", arg.NoValue
 	}
 
 	return arg.values[0], true
