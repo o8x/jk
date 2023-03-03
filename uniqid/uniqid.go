@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/o8x/jk/djb2"
+	"github.com/o8x/jk/v2/djb2"
 )
 
 func Number() uint64 {

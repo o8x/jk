@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/o8x/jk/logger"
-	"github.com/o8x/jk/uniqid"
+	"github.com/o8x/jk/v2/logger"
+	"github.com/o8x/jk/v2/uniqid"
 )
 
 var DefaultClient = &http.Client{}

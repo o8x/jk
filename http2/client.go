@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/o8x/jk/cert"
+	"github.com/o8x/jk/v2/cert"
 	"golang.org/x/net/http2"
 )
 

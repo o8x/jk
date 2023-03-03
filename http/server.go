@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/o8x/jk/response"
+	"github.com/o8x/jk/v2/response"
 )
 
 type Request struct {

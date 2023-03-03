@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/o8x/jk/logger"
+	"github.com/o8x/jk/v2/logger"
 )
 
 type RecoverFunc func(*Crash)

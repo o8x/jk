@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/o8x/jk/signal"
+	"github.com/o8x/jk/v2/signal"
 )
 
 type Properties map[string]any

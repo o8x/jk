@@ -8,8 +8,8 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/o8x/jk/crash"
-	"github.com/o8x/jk/logger"
+	"github.com/o8x/jk/v2/crash"
+	"github.com/o8x/jk/v2/logger"
 )
 
 func WritePacket(addr string, packet []byte) (int, error) {

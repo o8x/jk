@@ -1,15 +1,15 @@
 package main
 
 import (
-	"github.com/o8x/jk/args"
-	"github.com/o8x/jk/cert"
+	"github.com/o8x/jk/v2/args"
+	"github.com/o8x/jk/v2/cert"
 )
 
 func main() {
 	a := args.Args{
 		App: &args.App{
 			Name:  "cert maker",
-			Usage: "go run github.com/o8x/jk/cmd/cert -domain localhost",
+			Usage: "go run github.com/o8x/jk/v2/cmd/cert -domain localhost",
 		},
 		Flags: []*args.Flag{
 			{
