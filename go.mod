@@ -1,4 +1,4 @@
-module github.com/o8x/jk
+module github.com/o8x/jk/v2
 
 go 1.19
 
