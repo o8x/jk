@@ -31,6 +31,7 @@ Go Development Kit
 * [json](json): 带有美化功能简单 json 编解码器
 * [puresqlite](puresqlite): 纯 go sqlite lib
 * [context](context): context 的封装，实现类似面向对象的用法
+* [utils](x): 一些实用方法
 
 ## Tools
 
