@@ -42,6 +42,17 @@ Args Manual
 	- [其他 API](#其他-api)
 		- [ 阻塞主 goroutine](#-阻塞主-goroutine)
 		- [ 退出](#-退出)
+		- [打印调试日志并退出](#打印调试日志并退出)
+	- [脚手架](#脚手架)
+		- [ArgFunc](#argfunc)
+		- [生成基本的 Args 实例](#生成基本的-args-实例)
+		- [注入应用程序名称和使用示例](#注入应用程序名称和使用示例)
+		- [增加基本的 Flag](#增加基本的-flag)
+		- [增加带有默认值的 Flag](#增加带有默认值的-flag)
+		- [增加 Enum Flag](#增加-enum-flag)
+		- [增加没有值的 Flag](#增加没有值的-flag)
+		- [手动扩展 Option](#手动扩展-option)
+		- [调用示例](#调用示例)
 
 <!-- vscode-markdown-toc-config
 	numbering=false
@@ -812,4 +823,94 @@ fmt.Println("app shutdown")
 
 ```go
 a.Exit(0)
+```
+
+### <a name='-1'></a>打印调试日志并退出
+
+	func (a *Args) DumpExit()
+
+示例
+
+```go
+a.DumpExit()
+```
+
+## <a name='-1'></a>脚手架
+
+如果你只想从命令行获取一些简单的参数，不想大动干戈构造 Args 实例，Args 也提供了 Option API
+
+### <a name='ArgFunc'></a>ArgFunc
+
+注入方法类型，可以按此类型限定自由扩展 Option Function
+
+    type ArgFunc func(a *Args)
+
+### <a name='Args'></a>生成基本的 Args 实例
+
+    func New(fns ...ArgFunc) *Args
+
+### <a name='-1'></a>注入应用程序名称和使用示例
+
+    func WithApp(name, usage string) ArgFunc
+
+### <a name='Flag-1'></a>增加基本的 Flag
+
+    func AddFlag(name string) ArgFunc
+
+### <a name='Flag-1'></a>增加带有默认值的 Flag
+
+    func AddDefaultFlag(name, def string) ArgFunc
+
+### <a name='EnumFlag'></a>增加 Enum Flag
+
+    func AddEnumFlag(name, def string, enum ...string) ArgFunc
+
+### <a name='Flag-1'></a>增加没有值的 Flag
+
+    func AddNoValueFlag(name string) ArgFu
+
+### <a name='Option'></a>手动扩展 Option
+
+任何符合 args.ArgFunc 类型的方法都可以作为 Args 的 Option
+
+```go
+func WithAppCopyright(c string) args.ArgFunc {
+    return func(a *args.Args) {
+        if a.App != nil {
+            a.App.Copyright = c
+            return
+        }
+
+        a.App = &args.App{
+            Copyright: c,
+        }
+    }
+}
+```
+
+### <a name='-1'></a>调用示例
+
+```go
+package main
+
+import (
+	"github.com/o8x/jk/args"
+)
+
+func main() {
+	a := args.New(
+		args.WithApp("user", "./app -name Alex -dryrun -time 2"),
+		args.AddFlag("-name"),
+		args.AddDefaultFlag("-def", "Def"),
+		args.AddNoValueFlag("-dryrun"),
+		args.AddEnumFlag("-ts", "now", "nextDay", "now"),
+		WithAppCopyright("Alex"),
+	)
+
+	if err := a.Parse(); err != nil {
+		a.PrintHelpExit(err)
+	}
+
+	a.DumpExit()
+}
 ```
