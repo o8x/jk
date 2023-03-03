@@ -30,6 +30,7 @@ Go Development Kit
 * [http](http): 一次性 http Get/Post 请求构造器
 * [json](json): 带有美化功能简单 json 编解码器
 * [puresqlite](puresqlite): 纯 go sqlite lib
+* [context](context): context 的封装，实现类似面向对象的用法
 
 ## Tools
 
