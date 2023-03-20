@@ -27,3 +27,7 @@ func Prettify[T Type](v any) T {
 
 	return T(buf.Bytes())
 }
+
+func PrettifyString(v any) string {
+	return Prettify[string](v)
+}
