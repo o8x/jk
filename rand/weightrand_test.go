@@ -8,6 +8,7 @@ import (
 
 func TestWeightRand(t *testing.T) {
 	r := NewWeightRand[int]()
+	r.AddWeight(14, 0)
 
 	l := 10
 	highWeightItem := 0
@@ -25,7 +26,7 @@ func TestWeightRand(t *testing.T) {
 		m[r.Get()]++
 	}
 
-	if m[highWeightItem] <= count/l {
+	if _, ok := m[14]; ok || m[highWeightItem] <= count/l {
 		t.Errorf("test failed")
 	}
 }

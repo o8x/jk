@@ -14,7 +14,7 @@ type Item[T SeedType] struct {
 }
 
 type WeightRand[T SeedType] struct {
-	seed   []Item[T]
+	seed   []*Item[T]
 	weight int
 	lock   *sync.Mutex
 }
@@ -38,7 +38,7 @@ func (w *WeightRand[T]) Add(it T) {
 func (w *WeightRand[T]) AddWeight(it T, weight int) {
 	defer w.calc()
 
-	w.seed = append(w.seed, Item[T]{
+	w.seed = append(w.seed, &Item[T]{
 		item:   it,
 		weight: weight,
 	})
@@ -54,10 +54,26 @@ func (w *WeightRand[T]) calc() {
 	}
 }
 
+func (w *WeightRand[T]) Update(fn func(T, int) (T, int)) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	for _, it := range w.seed {
+		it.item, it.weight = fn(it.item, it.weight)
+	}
+}
+
 func (w *WeightRand[T]) Get() (t T) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
 	stop := Intn(w.weight)
 	sum := 0
 	for _, it := range w.seed {
+		if it.weight == 0 {
+			continue
+		}
+
 		if sum += it.weight; sum > stop {
 			return it.item
 		}
