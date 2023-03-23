@@ -12,11 +12,17 @@ import (
 
 var DefaultClient = &http.Client{}
 
+type Response struct {
+	*http.Response `json:"base"`
+	StatusCode     int    `json:"status_code"`
+	Body           []byte `json:"body"`
+}
+
 var DefaultHeader = map[string]string{
 	"User-Agent": "jk-http-client/1.7.1",
 }
 
-func Get(url string, headers ...map[string]string) ([]byte, error) {
+func Get(url string, headers ...map[string]string) (*Response, error) {
 	var h map[string]string
 	if headers != nil {
 		h = headers[0]
@@ -25,7 +31,7 @@ func Get(url string, headers ...map[string]string) ([]byte, error) {
 	return Raw(http.MethodGet, url, nil, h)
 }
 
-func Post(url string, data any, headers ...map[string]string) ([]byte, error) {
+func Post(url string, data any, headers ...map[string]string) (*Response, error) {
 	var h map[string]string
 	if headers != nil {
 		h = headers[0]
@@ -35,7 +41,7 @@ func Post(url string, data any, headers ...map[string]string) ([]byte, error) {
 	return Raw(http.MethodPost, url, marshal, h)
 }
 
-func Raw(method, url string, data []byte, headers map[string]string) ([]byte, error) {
+func Raw(method, url string, data []byte, headers map[string]string) (*Response, error) {
 	rid := uniqid.String()
 	logger.
 		WithField("request id", rid).
@@ -72,5 +78,9 @@ func Raw(method, url string, data []byte, headers map[string]string) ([]byte, er
 		WithField("request id", rid).
 		WithField("data", string(all)).
 		Debug("http response")
-	return all, err
+
+	return &Response{
+		Response: resp,
+		Body:     all,
+	}, err
 }
