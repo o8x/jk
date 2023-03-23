@@ -18,11 +18,7 @@ func (r *Map[Tk, Tv]) Store(name Tk, value Tv) {
 
 func (r *Map[Tk, Tv]) LoadOrStore(name Tk, value Tv) (v Tv, ok bool) {
 	actual, loaded := r.m.LoadOrStore(name, value)
-	if loaded {
-		v = actual.(Tv)
-		ok = true
-	}
-	return
+	return actual.(Tv), loaded
 }
 
 func (r *Map[Tk, Tv]) Load(name Tk) (v Tv) {
