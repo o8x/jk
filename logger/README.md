@@ -3,9 +3,29 @@ Manual
 
 ## 初始化 logrus
 
-自动初始化 logrus 并使用 lumberjack 实现日志切割
+初始化 logrus 并设置输出目标
 
-    func Init(level, file string)
+    func New(level logrus.Level, out io.Writer) *logrus.Logger
+
+初始化 logrus 并将输出目标设置为使用 lumberjack 实现的自动切割日志写入器
+
+	func NewFile(level string, out string) *logrus.Logger
+
+## 使用默认日志写入器
+
+无需调用任何方法，日志将会自动被输出到 stdout，实际行为类似 `New(logrus.DebugLevel, os.Stdout)`
+
+## 使用默认文件日志写入器
+
+相当于 NewFile("info", "log/jk.log")
+
+	func UseDefault()
+
+## lumberjack
+
+生成一个支持自动切割日志的写入器
+
+	func NewRotater(file string) io.Writer
 
 ## 获取 logrus 实例
 
@@ -17,7 +37,7 @@ Manual
 
 使用已有的 logrus 实例替换 std logger
 
-    func Inject(l *logrus.Logger)
+    func UseLogger(l *logrus.Logger)
 
 ## API
 
@@ -63,18 +83,6 @@ Manual
 
     func WithError(err error) *logrus.Entry
 
-### SetLevel
-
-等同 logrus.SetLevel
-
-    func SetLevel(level logrus.Level)
-
-### ResetLevel
-
-SetLevel(logrus.InfoLevel)
-
-    func ResetLevel()
-
 ## 示例
 
 ```go
@@ -87,7 +95,7 @@ import (
 )
 
 func main() {
-	logger.Init("info", "/dev/stdout")
+	logger.UseLogger(logger.NewFile("info", "/dev/stdout"))
 
 	logger.Info("Info log")
 	logger.Fatal("Fatal log")

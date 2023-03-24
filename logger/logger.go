@@ -8,43 +8,41 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-var std = logrus.New()
-
-func SetLevel(level logrus.Level) {
-	std.SetLevel(level)
-}
-
-func ResetLevel() {
-	SetLevel(logrus.InfoLevel)
-}
+var std = New(logrus.DebugLevel, os.Stdout)
 
 func Get() *logrus.Logger {
 	return std
 }
 
-func Inject(l *logrus.Logger) {
+func UseLogger(l *logrus.Logger) {
 	std = l
 }
 
-func Init(level, file string) {
-	var output io.Writer = &lumberjack.Logger{
+func UseDefault() {
+	UseLogger(NewFile("info", "log/jk.log"))
+}
+
+func NewFile(level string, out string) *logrus.Logger {
+	l := ParseLevel(level, logrus.InfoLevel)
+	return New(l, NewRotater(out))
+}
+
+func New(level logrus.Level, out io.Writer) *logrus.Logger {
+	l := logrus.New()
+	l.SetLevel(level)
+	l.SetFormatter(&logrus.TextFormatter{})
+	l.SetOutput(out)
+	return l
+}
+
+func NewRotater(file string) io.Writer {
+	return &lumberjack.Logger{
 		Filename:  file,
 		MaxSize:   128,
 		MaxAge:    90,
 		Compress:  true,
 		LocalTime: true,
 	}
-
-	logLevel := ParseLevel(level, logrus.InfoLevel)
-	std = logrus.New()
-	std.SetLevel(logLevel)
-
-	if logLevel == logrus.DebugLevel {
-		output = os.Stdout
-	}
-
-	std.SetFormatter(&logrus.TextFormatter{})
-	std.SetOutput(output)
 }
 
 func ParseLevel(level string, def logrus.Level) logrus.Level {
