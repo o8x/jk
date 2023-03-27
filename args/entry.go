@@ -20,6 +20,16 @@ func AddFlag(name string) ArgFunc {
 	}
 }
 
+func AddEnvFlag(name string, env ...string) ArgFunc {
+	return func(a *Args) {
+		a.Flags = append(a.Flags, &Flag{
+			Name:     []string{name},
+			Env:      env,
+			Required: true,
+		})
+	}
+}
+
 func AddDefaultFlag(name, def string) ArgFunc {
 	return func(a *Args) {
 		a.Flags = append(a.Flags, &Flag{
