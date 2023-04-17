@@ -11,6 +11,8 @@ import (
 	"github.com/o8x/jk/v2/x"
 )
 
+type Handler func(Request) *response.Response
+
 type Request struct {
 	*http.Request
 	Query url.Values
@@ -53,15 +55,15 @@ func NewMux() *Mux {
 	}
 }
 
-func (m *Mux) Post(name string, fn func(Request) *response.Response) {
+func (m *Mux) Post(name string, fn Handler) {
 	m.RegisterRoute(http.MethodPost, name, fn)
 }
 
-func (m *Mux) Get(name string, fn func(Request) *response.Response) {
+func (m *Mux) Get(name string, fn Handler) {
 	m.RegisterRoute(http.MethodGet, name, fn)
 }
 
-func (m *Mux) Put(name string, fn func(Request) *response.Response) {
+func (m *Mux) Put(name string, fn Handler) {
 	m.RegisterRoute(http.MethodPut, name, fn)
 }
 
@@ -82,15 +84,15 @@ func (m *Mux) Trace(name string) {
 	})
 }
 
-func (m *Mux) Delete(name string, fn func(Request) *response.Response) {
+func (m *Mux) Delete(name string, fn Handler) {
 	m.RegisterRoute(http.MethodDelete, name, fn)
 }
 
-func (m *Mux) Any(name string, fn func(Request) *response.Response) {
+func (m *Mux) Any(name string, fn Handler) {
 	m.RegisterRoute("any", name, fn)
 }
 
-func (m *Mux) RegisterRoute(method, name string, fn func(Request) *response.Response) {
+func (m *Mux) RegisterRoute(method, name string, fn Handler) {
 	m.mux.HandleFunc(name, func(w http.ResponseWriter, r *http.Request) {
 		if method != "any" && r.Method != method {
 			w.WriteHeader(http.StatusMethodNotAllowed)
@@ -119,4 +121,25 @@ func ListenAndServe(listen string, mux *Mux) error {
 	}
 
 	return srv.ListenAndServe()
+}
+
+func PostServer(listen, path string, fn Handler) error {
+	mux := NewMux()
+	mux.Post(path, fn)
+
+	return ListenAndServe(listen, mux)
+}
+
+func GetServer(listen, path string, fn Handler) error {
+	mux := NewMux()
+	mux.Get(path, fn)
+
+	return ListenAndServe(listen, mux)
+}
+
+func AnyServer(listen, path string, fn Handler) error {
+	mux := NewMux()
+	mux.Any(path, fn)
+
+	return ListenAndServe(listen, mux)
 }
