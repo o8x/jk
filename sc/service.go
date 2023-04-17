@@ -45,8 +45,8 @@ func Init(start, stop func(), conf *Preferences) error {
 	return nil
 }
 
-func Get() *service.Service {
-	return &s
+func Get() service.Service {
+	return s
 }
 
 func Install() bool {
