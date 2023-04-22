@@ -40,6 +40,18 @@ func (r *Request) RemoteHost() string {
 	return host
 }
 
+func (r *Request) RemoteHostIn(list ...string) bool {
+	host := r.RemoteHost()
+
+	for _, it := range list {
+		if it == host {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (r *Request) RemotePort() int {
 	_, port, _ := net.SplitHostPort(r.RemoteAddr)
 	return x.ParseInt(port, 0)
