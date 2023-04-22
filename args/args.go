@@ -444,6 +444,11 @@ func (a *Args) Parse() error {
 			}
 
 			if i+1 >= len(a.Source) || strings.HasPrefix(a.Source[i+1], "-") {
+				if p.Default != nil {
+					p.values = p.Default
+					continue
+				}
+
 				return fmt.Errorf("flag: %s need to provide a value", arg)
 			}
 
