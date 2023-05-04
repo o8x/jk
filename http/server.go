@@ -67,6 +67,10 @@ func NewMux() *Mux {
 	}
 }
 
+func (m *Mux) ListenAndServe(listen string) error {
+	return ListenAndServe(listen, m)
+}
+
 func (m *Mux) Post(name string, fn Handler) {
 	m.RegisterRoute(http.MethodPost, name, fn)
 }
