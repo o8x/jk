@@ -30,6 +30,15 @@ func AddEnvFlag(name string, env ...string) ArgFunc {
 	}
 }
 
+func AddPropertyFlag(name string) ArgFunc {
+	return func(a *Args) {
+		a.Flags = append(a.Flags, &Flag{
+			Name:         []string{name},
+			PropertyMode: true,
+		})
+	}
+}
+
 func AddDefaultFlag(name, def string) ArgFunc {
 	return func(a *Args) {
 		a.Flags = append(a.Flags, &Flag{
@@ -47,7 +56,6 @@ func AddEnumFlag(name, def string, enum ...string) ArgFunc {
 			Default:          []string{def},
 			ValuesOnlyInEnum: enum,
 			Required:         true,
-			SingleValue:      true,
 		})
 	}
 }

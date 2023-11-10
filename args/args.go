@@ -3,111 +3,14 @@ package args
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/o8x/jk/v2/signal"
 )
-
-type Properties map[string]any
-
-func (p Properties) GetInt(name string) (int, bool) {
-	v, ok := p.GetInt64(name)
-	if !ok {
-		return 0, false
-	}
-
-	return int(v), true
-}
-
-func (p Properties) GetIntDefault(name string, def int) int {
-	get, ok := p.GetInt(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) GetInt64(name string) (int64, bool) {
-	v, ok := p.Get(name)
-	if !ok {
-		return 0, false
-	}
-
-	i, err := strconv.ParseInt(v, 10, 64)
-	if err != nil {
-		return 0, false
-	}
-
-	return i, true
-}
-
-func (p Properties) GetInt64Default(name string, def int64) int64 {
-	get, ok := p.GetInt64(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) IsSet(name string) bool {
-	_, ok := p[name]
-	return ok
-}
-
-func (p Properties) Get(name string) (string, bool) {
-	a, ok := p[name]
-	if !ok {
-		return "", false
-	}
-
-	s, ok := a.(string)
-	if !ok {
-		return "", false
-	}
-
-	return s, true
-}
-
-func (p Properties) GetDefault(name, def string) string {
-	get, ok := p.Get(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) GetBool(name string) (bool, bool) {
-	v, ok := p.Get(name)
-	if !ok {
-		return false, false
-	}
-
-	if v == "true" {
-		return true, true
-	}
-
-	if v == "false" {
-		return false, true
-	}
-
-	return false, false
-}
-
-func (p Properties) GetBoolDefault(name string, def bool) bool {
-	get, ok := p.GetBool(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
 
 type Flag struct {
 	Name             []string `json:"name"`
@@ -135,7 +38,7 @@ func (a Flag) JoinDefault() string {
 }
 
 func (a Flag) JoinEnum() string {
-	return strings.Join(a.ValuesOnlyInEnum, "|")
+	return strings.Join(a.ValuesOnlyInEnum, ",")
 }
 
 type App struct {
@@ -167,6 +70,7 @@ type Args struct {
 	Flags      []*Flag  `json:"args"`
 	cmdline    string
 	HelpFunc   func() string
+	cacheMap   map[string]any
 }
 
 func (a *Args) init() {
@@ -184,6 +88,8 @@ func (a *Args) init() {
 		Name:        []string{"-version", "-v"},
 		Description: "print version info and exit",
 	})
+
+	a.cacheMap = map[string]any{}
 }
 
 func isArgName(arg string) bool {
@@ -393,9 +299,14 @@ func (a *Args) Help(err error) string {
 		if properties != nil {
 			b.WriteString(": " + strings.Join(properties, ","))
 		}
+
 		b.WriteString("\n")
 
 		b.WriteString(fmt.Sprintf("        %s", it.Description))
+		if it.ValuesOnlyInEnum != nil {
+			b.WriteString(fmt.Sprintf(" (enum: %s)", it.JoinEnum()))
+		}
+
 		if it.Default != nil {
 			b.WriteString(fmt.Sprintf(" (default: %s)\n", it.JoinDefault()))
 		} else {
@@ -404,6 +315,23 @@ func (a *Args) Help(err error) string {
 	}
 
 	return b.String()
+}
+
+func (a *Args) UpdateDescript(name, desc string) {
+	for _, it := range a.Flags {
+		for _, n := range it.Name {
+			if n == name {
+				it.Description = desc
+				break
+			}
+		}
+	}
+}
+
+func (a *Args) UpdateDescripts(descs map[string]string) {
+	for name, desc := range descs {
+		a.UpdateDescript(name, desc)
+	}
 }
 
 func (a *Args) Parse() error {
@@ -519,6 +447,20 @@ func (a *Args) Parse() error {
 
 				arg.properties[value] = ""
 			}
+
+			// 生成缓存
+			for _, n := range arg.Name {
+				a.cacheMap[n] = arg.properties
+			}
+		} else {
+			// 生成缓存
+			for _, n := range arg.Name {
+				if len(arg.values) == 1 {
+					a.cacheMap[n] = arg.values[0]
+				} else {
+					a.cacheMap[n] = arg.values
+				}
+			}
 		}
 
 		if arg.HookFunc != nil {
@@ -547,161 +489,32 @@ func (a *Args) findArg(arg string) (*Flag, error) {
 	return nil, fmt.Errorf("flag %s is not defined", arg)
 }
 
-func (a *Args) ParseCmdline(cmdline string) error {
-	a.cmdline = cmdline
-	a.Source = strings.Fields(cmdline)
-	return a.Parse()
+func (a *Args) Bytes() []byte {
+	marshal, _ := json.Marshal(a.cacheMap)
+	return marshal
 }
 
-func (a *Args) IsSet(name string) bool {
-	arg, err := a.findArg(name)
-	if err != nil {
-		return false
+func (a *Args) Copy() Readonly {
+	return Readonly{
+		parent: *a,
 	}
-
-	return arg.exist
 }
 
-func (a *Args) GetInt64(name string) (int64, bool) {
-	arg, err := a.findArg(name)
-	if err != nil {
-		return 0, false
-	}
-
-	if arg.values == nil {
-		return 0, false
-	}
-
-	i, err := strconv.ParseInt(arg.values[0], 10, 64)
-	if err != nil {
-		return 0, false
-	}
-
-	return i, true
-}
-
-func (a *Args) GetInt(name string) (int, bool) {
-	v, ok := a.GetInt64(name)
-	return int(v), ok
-}
-
-func (a *Args) GetInts(name string) []int {
-	s, err := a.GetInt64s(name)
-	if err != nil {
-		return nil
-	}
-
-	var list []int
-	for _, it := range s {
-		list = append(list, int(it))
-	}
-
-	return list
-}
-
-func (a *Args) GetInt64s(name string) ([]int64, error) {
-	arg, err := a.findArg(name)
-	if err != nil {
-		return nil, err
-	}
-
-	var result []int64
-	for _, v := range arg.values {
-		i, err := strconv.ParseInt(v, 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, i)
-	}
-
-	return result, nil
-}
-
-func (a *Args) GetProperties(name string) Properties {
-	arg, err := a.findArg(name)
-	if err != nil || !arg.PropertyMode {
-		return nil
-	}
-
-	return arg.properties
-}
-
-func (a *Args) GetProperty(name string, property string) (string, bool) {
-	properties := a.GetProperties(name)
-	if properties != nil {
-		return properties.Get(property)
-	}
-	return "", false
-}
-
-func (a *Args) GetPropertyX(name string, property string) string {
-	properties := a.GetProperties(name)
-	if properties != nil {
-		v, ok := properties.Get(property)
-		if ok {
-			return v
+func (a *Args) Bind(v any) error {
+	if a.cacheMap == nil {
+		if err := a.Parse(); err != nil {
+			return err
 		}
 	}
 
-	panic(fmt.Sprintf("property %s.%s not found", name, property))
-}
-
-func (a *Args) Get(name string) (string, bool) {
-	arg, err := a.findArg(name)
-	if err != nil {
-		return "", false
-	}
-
-	if arg.values == nil {
-		return "", arg.NoValue
-	}
-
-	return arg.values[0], true
-}
-
-func (a *Args) GetX(name string) string {
-	arg, err := a.findArg(name)
-	if err != nil {
-		panic(err)
-	}
-
-	if arg.values == nil {
-		panic(fmt.Errorf("flag %s values is nil", name))
-	}
-
-	return arg.values[0]
-}
-
-func (a *Args) Gets(name string) []string {
-	arg, err := a.findArg(name)
-	if err != nil {
+	if v == nil {
 		return nil
 	}
 
-	return arg.values
-}
-
-func (a *Args) GetBool(name string) (bool, bool) {
-	arg, err := a.findArg(name)
-	if err != nil {
-		return false, false
+	d := Readonly{
+		parent: *a,
 	}
-
-	if arg.values == nil {
-		return false, false
-	}
-
-	v := arg.values[0]
-	if v == "true" {
-		return true, true
-	}
-
-	if v == "false" {
-		return false, true
-	}
-
-	return false, false
+	return d.Unmarshal(v)
 }
 
 func (a *Args) Exit(code int) {
