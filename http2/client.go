@@ -4,8 +4,9 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/o8x/jk/v2/cert"
 	"golang.org/x/net/http2"
+
+	"github.com/o8x/jk/v2/cert"
 )
 
 func NewClient(f *cert.Folder) (*http.Client, error) {
