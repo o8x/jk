@@ -15,11 +15,12 @@ type Handler func(Request) *response.Response
 
 type Request struct {
 	*http.Request
-	Query url.Values
+	Writer http.ResponseWriter
+	Query  url.Values
 }
 
 func (r *Request) Unmarshal(v any) error {
-	all, err := io.ReadAll(r.Request.Body)
+	all, err := r.ReadBody()
 	if err != nil {
 		return err
 	}
@@ -117,6 +118,7 @@ func (m *Mux) RegisterRoute(method, name string, fn Handler) {
 
 		resp := fn(Request{
 			Request: r,
+			Writer:  w,
 			Query:   r.URL.Query(),
 		})
 		if resp == nil {
