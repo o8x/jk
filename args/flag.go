@@ -29,35 +29,40 @@ func NewApp(name, usage, version string) *App {
 	}
 }
 
-func NewFlag(name string, def string, desc string, fn func(int, []string) error) *Flag {
+func NewRequiredFlag(name string, desc string, fn FlagHookFunc) *Flag {
 	return &Flag{
 		Name:        []string{name},
 		Description: desc,
-		Default:     []string{def},
 		Required:    true,
-		Env:         []string{strings.ToUpper(fmt.Sprintf("A-%s", name))},
+		Env:         []string{strings.ToUpper(fmt.Sprintf("A%s", strings.TrimPrefix(name, "--")))},
 		SingleValue: true,
 		HookFunc:    fn,
 	}
 }
 
-func NewDefaultFlag(name string, def []string, desc string, fn func(int, []string) error) *Flag {
-	return &Flag{
-		Name:        []string{name},
-		Description: desc,
-		Default:     def,
-		Required:    true,
-		Env:         []string{strings.ToUpper(fmt.Sprintf("A-%s", name))},
-		SingleValue: true,
-		HookFunc:    fn,
-	}
+func NewFlag(name string, def string, desc string, fn FlagHookFunc) *Flag {
+	a := NewRequiredFlag(name, desc, fn)
+	a.Default = []string{def}
+	return a
 }
 
-func NewNoValueFlag(name string, desc string) *Flag {
-	return &Flag{
-		Name:        []string{name},
-		Description: desc,
-		NoValue:     true,
-		Env:         []string{strings.ToUpper(fmt.Sprintf("A-%s", name))},
-	}
+func NewOptionFlag(name string, def string, desc string, fn FlagHookFunc) *Flag {
+	a := NewRequiredFlag(name, desc, fn)
+	a.Default = []string{def}
+	a.Required = false
+	return a
+}
+
+func NewDefaultFlag(name string, def []string, desc string, fn FlagHookFunc) *Flag {
+	a := NewRequiredFlag(name, desc, fn)
+	a.Default = def
+	a.Required = true
+	return a
+}
+
+func NewNoValueFlag(name string, desc string, required bool) *Flag {
+	a := NewRequiredFlag(name, desc, nil)
+	a.NoValue = true
+	a.Required = required
+	return a
 }

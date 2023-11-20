@@ -12,6 +12,8 @@ import (
 	"github.com/o8x/jk/v2/signal"
 )
 
+type FlagHookFunc func(int, []string) error
+
 type Flag struct {
 	Name             []string `json:"name"`
 	Description      string   `json:"description"`
@@ -23,7 +25,7 @@ type Flag struct {
 	NoValue          bool     `json:"no_value"`
 	ValuesOnlyInEnum []string `json:"value_only_in_enum"`
 	SingleValue      bool     `json:"single_value"`
-	HookFunc         func(int, []string) error
+	HookFunc         FlagHookFunc
 	values           []string
 	properties       Properties
 	exist            bool
@@ -259,6 +261,53 @@ func (a *Args) PrintErrorExit(err error) {
 	os.Exit(1)
 }
 
+func (a *Args) GenerateUsage() string {
+	var s []string
+	var m = map[string]struct{}{}
+	for _, it := range a.Flags {
+		if !it.Required {
+			continue
+		}
+
+		if it.NoValue {
+			s = append(s, it.Name[0])
+			m[it.Name[0]] = struct{}{}
+			continue
+		}
+
+		if it.Default != nil {
+			for _, d := range it.Default {
+				// 显式声明空字符串默认值
+				if d == "" {
+					d = `""`
+				}
+
+				s = append(s, fmt.Sprintf("%s %s", it.Name[0], d))
+				m[it.Name[0]] = struct{}{}
+			}
+			continue
+		}
+
+		if it.Env != nil {
+			for _, e := range it.Env {
+				val, ok := os.LookupEnv(e)
+				if !ok {
+					continue
+				}
+
+				m[it.Name[0]] = struct{}{}
+				s = append(s, fmt.Sprintf("%s ${%s:=%s}", it.Name[0], e, val))
+			}
+		}
+
+		if _, ok := m[it.Name[0]]; !ok {
+			s = append(s, fmt.Sprintf(`%s ""`, it.Name[0]))
+		}
+	}
+
+	return strings.Join(s, " ")
+}
+
 func (a *Args) Help(err error) string {
 	if a.HelpFunc != nil {
 		return a.HelpFunc()
@@ -273,19 +322,8 @@ func (a *Args) Help(err error) string {
 	}
 
 	if a.App != nil {
-		var s []string
-		for _, it := range a.Flags {
-			if it.NoValue {
-				s = append(s, it.Name[0])
-				continue
-			}
-
-			for _, v := range it.values {
-				s = append(s, fmt.Sprintf("%s %s", it.Name[0], v))
-			}
-		}
-
-		a.App.Usage = strings.ReplaceAll(a.App.Usage, "{{auto}}", strings.Join(s, " "))
+		a.App.Usage = strings.ReplaceAll(a.App.Usage, "{{auto}}", a.GenerateUsage())
+		a.App.Usage = strings.ReplaceAll(a.App.Usage, "{{executable}}", a.Executable)
 
 		b.WriteString(a.App.AppFullVersion())
 		b.WriteString("\n")
@@ -429,7 +467,7 @@ func (a *Args) Parse() error {
 			return fmt.Errorf(msg)
 		}
 
-		if arg.SingleValue {
+		if arg.SingleValue && !arg.NoValue {
 			if len(arg.values) > 1 || len(arg.values) == 0 {
 				return fmt.Errorf("flag %s only allow one value", arg.JoinName())
 			}
