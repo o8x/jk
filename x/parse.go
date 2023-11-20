@@ -1,6 +1,7 @@
 package x
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -11,8 +12,8 @@ func ParseUint(s string, def uint) uint {
 	return uint(ParseInt64(s, int64(def)))
 }
 
-func ParseInt64(s string, def int64) int64 {
-	l, err := strconv.ParseInt(s, 10, 32)
+func ParseInt64(s any, def int64) int64 {
+	l, err := strconv.ParseInt(fmt.Sprintf("%v", s), 10, 32)
 	if err != nil {
 		return def
 	}
