@@ -236,7 +236,7 @@ func (a *Args) DumpExit() {
 
 		if arg.HookFunc != nil {
 			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
-				b.WriteString(fmt.Sprintf("exec hook function is error: %v", err))
+				b.WriteString(fmt.Sprintf("%s hook error: %v", arg.Name[0], err))
 				b.WriteString("\n")
 			}
 		}
@@ -273,6 +273,20 @@ func (a *Args) Help(err error) string {
 	}
 
 	if a.App != nil {
+		var s []string
+		for _, it := range a.Flags {
+			if it.NoValue {
+				s = append(s, it.Name[0])
+				continue
+			}
+
+			for _, v := range it.values {
+				s = append(s, fmt.Sprintf("%s %s", it.Name[0], v))
+			}
+		}
+
+		a.App.Usage = strings.ReplaceAll(a.App.Usage, "{{auto}}", strings.Join(s, " "))
+
 		b.WriteString(a.App.AppFullVersion())
 		b.WriteString("\n")
 		b.WriteString(fmt.Sprintf("usage: %s\n", a.App.Usage))
@@ -465,7 +479,7 @@ func (a *Args) Parse() error {
 
 		if arg.HookFunc != nil {
 			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
-				return fmt.Errorf("exec hook function is error: %v", err)
+				return fmt.Errorf("%s hook error: %v", arg.Name[0], err)
 			}
 		}
 	}
