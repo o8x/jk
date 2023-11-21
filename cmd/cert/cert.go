@@ -24,7 +24,8 @@ func main() {
 		a.PrintHelpExit(err)
 	}
 
-	for _, d := range a.Gets("domain") {
+	data := a.Copy()
+	for _, d := range data.Gets("domain") {
 		if _, err := cert.MakeCA(d); err != nil {
 			a.PrintErrorExit(err)
 		}
