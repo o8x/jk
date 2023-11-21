@@ -12,37 +12,6 @@ import (
 	"github.com/o8x/jk/v2/signal"
 )
 
-type FlagHookFunc func(int, []string) error
-
-type Flag struct {
-	Name             []string `json:"name"`
-	Description      string   `json:"description"`
-	PropertyMode     bool     `json:"property_mode"`
-	Default          []string `json:"default"`
-	Required         bool     `json:"required"`
-	Env              []string `json:"env"`
-	Error            error    `json:"error_message"`
-	NoValue          bool     `json:"no_value"`
-	ValuesOnlyInEnum []string `json:"value_only_in_enum"`
-	SingleValue      bool     `json:"single_value"`
-	HookFunc         FlagHookFunc
-	values           []string
-	properties       Properties
-	exist            bool
-}
-
-func (a Flag) JoinName() string {
-	return strings.Join(a.Name, "|")
-}
-
-func (a Flag) JoinDefault() string {
-	return strings.Join(a.Default, ",")
-}
-
-func (a Flag) JoinEnum() string {
-	return strings.Join(a.ValuesOnlyInEnum, ",")
-}
-
 type App struct {
 	Name       string  `json:"name"`
 	Usage      string  `json:"usage"`
@@ -369,23 +338,6 @@ func (a *Args) Help(err error) string {
 	return b.String()
 }
 
-func (a *Args) UpdateDescript(name, desc string) {
-	for _, it := range a.Flags {
-		for _, n := range it.Name {
-			if n == name {
-				it.Description = desc
-				break
-			}
-		}
-	}
-}
-
-func (a *Args) UpdateDescripts(descs map[string]string) {
-	for name, desc := range descs {
-		a.UpdateDescript(name, desc)
-	}
-}
-
 func (a *Args) Parse() error {
 	a.init()
 	a.cmdline = strings.Join(os.Args[1:], " ")
@@ -517,7 +469,7 @@ func (a *Args) Parse() error {
 
 		if arg.HookFunc != nil {
 			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
-				return fmt.Errorf("%s hook error: %v", arg.Name[0], err)
+				return err
 			}
 		}
 	}

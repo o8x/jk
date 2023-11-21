@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 type Readonly struct {
@@ -17,12 +16,6 @@ func (a *Readonly) findArg(arg string) (*Flag, error) {
 
 func (a *Readonly) Unmarshal(v any) error {
 	return json.Unmarshal(a.parent.Bytes(), v)
-}
-
-func (a *Args) ParseCmdline(cmdline string) error {
-	a.cmdline = cmdline
-	a.Source = strings.Fields(cmdline)
-	return a.Parse()
 }
 
 func (a *Readonly) IsSet(name string) bool {
@@ -96,7 +89,7 @@ func (a *Readonly) GetProperties(name string) Properties {
 		return nil
 	}
 
-	return arg.properties
+	return arg.GetProperties()
 }
 
 func (a *Readonly) GetProperty(name string, property string) (string, bool) {
@@ -125,11 +118,7 @@ func (a *Readonly) Get(name string) (string, bool) {
 		return "", false
 	}
 
-	if arg.values == nil {
-		return "", arg.NoValue
-	}
-
-	return arg.values[0], true
+	return arg.Get()
 }
 
 func (a *Readonly) GetX(name string) string {
@@ -138,11 +127,7 @@ func (a *Readonly) GetX(name string) string {
 		panic(err)
 	}
 
-	if arg.values == nil {
-		panic(fmt.Errorf("flag %s values is nil", name))
-	}
-
-	return arg.values[0]
+	return arg.GetX()
 }
 
 func (a *Readonly) Gets(name string) []string {
@@ -151,7 +136,7 @@ func (a *Readonly) Gets(name string) []string {
 		return nil
 	}
 
-	return arg.values
+	return arg.Gets()
 }
 
 func (a *Readonly) GetBool(name string) (bool, bool) {
@@ -160,20 +145,7 @@ func (a *Readonly) GetBool(name string) (bool, bool) {
 		return false, false
 	}
 
-	if arg.values == nil {
-		return false, false
-	}
-
-	v := arg.values[0]
-	if v == "true" {
-		return true, true
-	}
-
-	if v == "false" {
-		return false, true
-	}
-
-	return false, false
+	return arg.GetBool()
 }
 
 type Properties map[string]any
