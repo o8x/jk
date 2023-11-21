@@ -226,7 +226,7 @@ func (a *Args) PrintHelpExit(err error) {
 }
 
 func (a *Args) PrintErrorExit(err error) {
-	fmt.Print(fmt.Sprintf("error: %v\n", err))
+	fmt.Printf("error: %v\n", err)
 	os.Exit(1)
 }
 

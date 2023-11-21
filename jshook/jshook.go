@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	error2 "github.com/o8x/jk/v2/error"
+
 	"github.com/o8x/jk/v2/http"
 	"github.com/o8x/jk/v2/jshook/ws"
 	"github.com/o8x/jk/v2/logger"
@@ -64,12 +66,15 @@ func (h *Hook) ListenAndServe() error {
 	})
 
 	m.Any("/js", func(r http.Request) *response.Response {
-		r.Writer.Write([]byte(strings.ReplaceAll(js, "{{ws_url}}", h.BuildWSURL())))
+		_, err := r.Writer.Write([]byte(strings.ReplaceAll(js, "{{ws_url}}", h.BuildWSURL())))
+		error2.Hide(err)
+
 		return nil
 	})
 
 	m.Any("/inject", func(r http.Request) *response.Response {
-		r.Writer.Write([]byte(strings.ReplaceAll(script, "{{js_url}}", h.BuildJsURL())))
+		_, err := r.Writer.Write([]byte(strings.ReplaceAll(script, "{{js_url}}", h.BuildJsURL())))
+		error2.Hide(err)
 		return nil
 	})
 

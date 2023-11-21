@@ -10,9 +10,7 @@ func NewArgs(app *App, args ...*Flag) *Args {
 		App: app,
 	}
 
-	for _, arg := range args {
-		a.Flags = append(a.Flags, arg)
-	}
+	a.Flags = append(a.Flags, args...)
 	return a
 }
 
