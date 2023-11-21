@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/gorilla/websocket"
+
 	"github.com/o8x/jk/v2/logger"
 )
 
