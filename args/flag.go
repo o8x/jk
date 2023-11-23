@@ -15,7 +15,6 @@ type Flag struct {
 	Default      []string `json:"default"`
 	Required     bool     `json:"required"`
 	Env          []string `json:"env"`
-	Error        error    `json:"error_message"`
 	NoValue      bool     `json:"no_value"`
 	SingleValue  bool     `json:"single_value"`
 	HookFunc     HookFunc

@@ -163,10 +163,8 @@ func (a *Args) DumpExit() {
 
 		// 必填但没有填并且也没有默认值
 		if arg.Required && !arg.exist && arg.Default == nil {
-			if arg.Error == nil {
-				b.WriteString("\terror: required, but no provide value.")
-				b.WriteString("\n")
-			}
+			b.WriteString("\terror: required, but no provide value.")
+			b.WriteString("\n")
 		}
 
 		if arg.SingleValue {
@@ -386,18 +384,7 @@ func (a *Args) Parse() error {
 
 		// 必填但没有填并且也没有默认值
 		if arg.Required && !arg.exist && arg.Default == nil {
-			if arg.Error == nil {
-				return fmt.Errorf("flag '%s' is required", arg.JoinName())
-			}
-
-			msg := strings.ReplaceAll(arg.Error.Error(), "{{name}}", arg.JoinName())
-			if a.App != nil {
-				msg = strings.ReplaceAll(msg, "{{app_name}}", a.App.Name)
-				if a.App.Version != nil {
-					msg = strings.ReplaceAll(msg, "{{app_version}}", *a.App.Version)
-				}
-			}
-			return fmt.Errorf(msg)
+			return fmt.Errorf("flag '%s' is required", arg.JoinName())
 		}
 
 		if arg.SingleValue && !arg.NoValue {
