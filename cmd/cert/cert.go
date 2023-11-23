@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/o8x/jk/v2/args"
+	"github.com/o8x/jk/v2/args/flag"
 	"github.com/o8x/jk/v2/cert"
 )
 
@@ -11,7 +12,7 @@ func main() {
 			Name:  "cert maker",
 			Usage: "go run github.com/o8x/jk/v2/cmd/cert -domain localhost",
 		},
-		Flags: []*args.Flag{
+		Flags: []*flag.Flag{
 			{
 				Name:        []string{"-domain", "-d"},
 				Description: "cert subject for domain",

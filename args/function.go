@@ -1,11 +1,8 @@
 package args
 
-import (
-	"fmt"
-	"strings"
-)
+import "github.com/o8x/jk/v2/args/flag"
 
-func NewArgs(app *App, args ...*Flag) *Args {
+func New(app *App, args ...*flag.Flag) *Args {
 	a := &Args{
 		App: app,
 	}
@@ -25,42 +22,4 @@ func NewApp(name, usage, version string) *App {
 		CommitHash: nil,
 		Date:       nil,
 	}
-}
-
-func NewRequiredFlag(name string, desc string, fn HookFunc) *Flag {
-	return &Flag{
-		Name:        []string{name},
-		Description: desc,
-		Required:    true,
-		Env:         []string{strings.ToUpper(fmt.Sprintf("A%s", strings.TrimPrefix(name, "--")))},
-		SingleValue: true,
-		HookFunc:    fn,
-	}
-}
-
-func NewFlag(name string, def string, desc string, fn HookFunc) *Flag {
-	a := NewRequiredFlag(name, desc, fn)
-	a.Default = []string{def}
-	return a
-}
-
-func NewOptionFlag(name string, def string, desc string, fn HookFunc) *Flag {
-	a := NewRequiredFlag(name, desc, fn)
-	a.Default = []string{def}
-	a.Required = false
-	return a
-}
-
-func NewDefaultFlag(name string, def []string, desc string, fn HookFunc) *Flag {
-	a := NewRequiredFlag(name, desc, fn)
-	a.Default = def
-	a.Required = true
-	return a
-}
-
-func NewNoValueFlag(name string, desc string, required bool) *Flag {
-	a := NewRequiredFlag(name, desc, nil)
-	a.NoValue = true
-	a.Required = required
-	return a
 }

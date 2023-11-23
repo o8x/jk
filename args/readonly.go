@@ -3,13 +3,15 @@ package args
 import (
 	"encoding/json"
 	"strconv"
+
+	"github.com/o8x/jk/v2/args/flag"
 )
 
 type Readonly struct {
 	parent Args
 }
 
-func (a *Readonly) findArg(arg string) (*Flag, error) {
+func (a *Readonly) findArg(arg string) (*flag.Flag, error) {
 	return a.parent.findArg(arg)
 }
 
@@ -23,7 +25,7 @@ func (a *Readonly) IsSet(name string) bool {
 		return false
 	}
 
-	return arg.exist
+	return arg.Exist
 }
 
 func (a *Readonly) GetInt64(name string) (int64, bool) {
@@ -32,11 +34,11 @@ func (a *Readonly) GetInt64(name string) (int64, bool) {
 		return 0, false
 	}
 
-	if arg.values == nil {
+	if arg.Values == nil {
 		return 0, false
 	}
 
-	i, err := strconv.ParseInt(arg.values[0], 10, 64)
+	i, err := strconv.ParseInt(arg.Values[0], 10, 64)
 	if err != nil {
 		return 0, false
 	}
@@ -70,7 +72,7 @@ func (a *Readonly) GetInt64s(name string) ([]int64, error) {
 	}
 
 	var result []int64
-	for _, v := range arg.values {
+	for _, v := range arg.Values {
 		i, err := strconv.ParseInt(v, 10, 64)
 		if err != nil {
 			return nil, err

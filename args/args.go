@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/o8x/jk/v2/args/flag"
 	"github.com/o8x/jk/v2/signal"
 )
 
@@ -35,10 +36,10 @@ func (a App) AppFullVersion() string {
 }
 
 type Args struct {
-	Executable string   `json:"executable"`
-	App        *App     `json:"app"`
-	Source     []string `json:"source"`
-	Flags      []*Flag  `json:"args"`
+	Executable string       `json:"executable"`
+	App        *App         `json:"app"`
+	Source     []string     `json:"source"`
+	Flags      []*flag.Flag `json:"args"`
 	cmdline    string
 	HelpFunc   func() string
 	cacheMap   map[string]any
@@ -50,12 +51,12 @@ func (a *Args) init() {
 		a.Source = os.Args[1:]
 	}
 
-	a.Flags = append(a.Flags, &Flag{
+	a.Flags = append(a.Flags, &flag.Flag{
 		Name:        []string{"-help", "-h"},
 		Description: "print this help and exit",
 	})
 
-	a.Flags = append(a.Flags, &Flag{
+	a.Flags = append(a.Flags, &flag.Flag{
 		Name:        []string{"-version", "-v"},
 		Description: "print version info and exit",
 	})
@@ -139,43 +140,43 @@ func (a *Args) DumpExit() {
 		b.WriteString(fmt.Sprintf("  %s", strings.Join(arg.Name, "|")))
 		b.WriteString("\n")
 
-		if arg.values != nil {
-			b.WriteString(fmt.Sprintf("\tvalues: %s (from cmdline)", strings.Join(arg.values, ", ")))
+		if arg.Values != nil {
+			b.WriteString(fmt.Sprintf("\tvalues: %s (from cmdline)", strings.Join(arg.Values, ", ")))
 			b.WriteString("\n")
 		}
 
-		if arg.values == nil && arg.Default != nil {
-			arg.values = arg.Default
-			b.WriteString(fmt.Sprintf("\tvalues: %s (use default)", strings.Join(arg.values, ", ")))
+		if arg.Values == nil && arg.Default != nil {
+			arg.Values = arg.Default
+			b.WriteString(fmt.Sprintf("\tvalues: %s (use default)", strings.Join(arg.Values, ", ")))
 			b.WriteString("\n")
 		}
 
-		if arg.values == nil && arg.Env != nil {
+		if arg.Values == nil && arg.Env != nil {
 			for _, name := range arg.Env {
 				if val, found := os.LookupEnv(name); found {
-					arg.values = append(arg.values, val)
+					arg.Values = append(arg.Values, val)
 				}
 			}
 
-			b.WriteString(fmt.Sprintf("\tvalues: %s (use environment)", strings.Join(arg.values, ", ")))
+			b.WriteString(fmt.Sprintf("\tvalues: %s (use environment)", strings.Join(arg.Values, ", ")))
 			b.WriteString("\n")
 		}
 
 		// 必填但没有填并且也没有默认值
-		if arg.Required && !arg.exist && arg.Default == nil {
+		if arg.Required && !arg.Exist && arg.Default == nil {
 			b.WriteString("\terror: required, but no provide value.")
 			b.WriteString("\n")
 		}
 
 		if arg.SingleValue {
-			if len(arg.values) > 1 || len(arg.values) == 0 {
-				b.WriteString(fmt.Sprintf("\terror: only one value allowed, provide values: %s", strings.Join(arg.values, ", ")))
+			if len(arg.Values) > 1 || len(arg.Values) == 0 {
+				b.WriteString(fmt.Sprintf("\terror: only one value allowed, provide values: %s", strings.Join(arg.Values, ", ")))
 				b.WriteString("\n")
 			}
 		}
 
 		if arg.HookFunc != nil {
-			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
+			if err := arg.HookFunc(arg); err != nil {
 				b.WriteString(fmt.Sprintf("%s hook error: %v", arg.Name[0], err))
 				b.WriteString("\n")
 			}
@@ -326,8 +327,8 @@ func (a *Args) Parse() error {
 					return fmt.Errorf("flag provided but not defined: %s", arg)
 				}
 
-				a.exist = true
-				a.values = append(a.values, v)
+				a.Exist = true
+				a.Values = append(a.Values, v)
 				continue
 			}
 
@@ -336,61 +337,61 @@ func (a *Args) Parse() error {
 				return err
 			}
 
-			p.exist = true
+			p.Exist = true
 			if p.NoValue {
 				continue
 			}
 
 			if i+1 >= len(a.Source) || strings.HasPrefix(a.Source[i+1], "-") {
 				if p.Default != nil {
-					p.values = p.Default
+					p.Values = p.Default
 					continue
 				}
 
 				return fmt.Errorf("flag: %s need to provide a value", arg)
 			}
 
-			p.values = append(p.values, a.Source[i+1])
+			p.Values = append(p.Values, a.Source[i+1])
 		}
 	}
 
 	for _, arg := range a.Flags {
 		// 有默认值，并且没有传值
-		if arg.values == nil && arg.Default != nil {
-			arg.values = arg.Default
+		if arg.Values == nil && arg.Default != nil {
+			arg.Values = arg.Default
 		}
 
 		// 从默认值也没有获取到值，但是提供了环境变量名
-		if arg.values == nil && arg.Env != nil {
+		if arg.Values == nil && arg.Env != nil {
 			for _, name := range arg.Env {
 				if val, found := os.LookupEnv(name); found {
-					arg.values = append(arg.values, val)
+					arg.Values = append(arg.Values, val)
 				}
 			}
 		}
 
 		// 必填但没有填并且也没有默认值
-		if arg.Required && !arg.exist && arg.Default == nil {
+		if arg.Required && !arg.Exist && arg.Default == nil {
 			return fmt.Errorf("flag '%s' is required", arg.JoinName())
 		}
 
 		if arg.SingleValue && !arg.NoValue {
-			if len(arg.values) > 1 || len(arg.values) == 0 {
+			if len(arg.Values) > 1 || len(arg.Values) == 0 {
 				return fmt.Errorf("flag %s only allow one value", arg.JoinName())
 			}
 		}
 
 		// 生成缓存
 		for _, n := range arg.Name {
-			if len(arg.values) == 1 {
-				a.cacheMap[n] = arg.values[0]
+			if len(arg.Values) == 1 {
+				a.cacheMap[n] = arg.Values[0]
 			} else {
-				a.cacheMap[n] = arg.values
+				a.cacheMap[n] = arg.Values
 			}
 		}
 
 		if arg.HookFunc != nil {
-			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
+			if err := arg.HookFunc(arg); err != nil {
 				return err
 			}
 		}
@@ -399,7 +400,7 @@ func (a *Args) Parse() error {
 	return nil
 }
 
-func (a *Args) findArg(arg string) (*Flag, error) {
+func (a *Args) findArg(arg string) (*flag.Flag, error) {
 	if !strings.HasPrefix(arg, "-") {
 		arg = "-" + arg
 	}
