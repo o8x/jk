@@ -2,7 +2,6 @@ package args
 
 import (
 	"encoding/json"
-	"fmt"
 	"strconv"
 )
 
@@ -83,35 +82,6 @@ func (a *Readonly) GetInt64s(name string) ([]int64, error) {
 	return result, nil
 }
 
-func (a *Readonly) GetProperties(name string) Properties {
-	arg, err := a.findArg(name)
-	if err != nil || !arg.PropertyMode {
-		return nil
-	}
-
-	return arg.GetProperties()
-}
-
-func (a *Readonly) GetProperty(name string, property string) (string, bool) {
-	properties := a.GetProperties(name)
-	if properties != nil {
-		return properties.Get(property)
-	}
-	return "", false
-}
-
-func (a *Readonly) GetPropertyX(name string, property string) string {
-	properties := a.GetProperties(name)
-	if properties != nil {
-		v, ok := properties.Get(property)
-		if ok {
-			return v
-		}
-	}
-
-	panic(fmt.Sprintf("property %s.%s not found", name, property))
-}
-
 func (a *Readonly) Get(name string) (string, bool) {
 	arg, err := a.findArg(name)
 	if err != nil {
@@ -146,101 +116,4 @@ func (a *Readonly) GetBool(name string) (bool, bool) {
 	}
 
 	return arg.GetBool()
-}
-
-type Properties map[string]any
-
-func (p Properties) GetInt(name string) (int, bool) {
-	v, ok := p.GetInt64(name)
-	if !ok {
-		return 0, false
-	}
-
-	return int(v), true
-}
-
-func (p Properties) GetIntDefault(name string, def int) int {
-	get, ok := p.GetInt(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) GetInt64(name string) (int64, bool) {
-	v, ok := p.Get(name)
-	if !ok {
-		return 0, false
-	}
-
-	i, err := strconv.ParseInt(v, 10, 64)
-	if err != nil {
-		return 0, false
-	}
-
-	return i, true
-}
-
-func (p Properties) GetInt64Default(name string, def int64) int64 {
-	get, ok := p.GetInt64(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) IsSet(name string) bool {
-	_, ok := p[name]
-	return ok
-}
-
-func (p Properties) Get(name string) (string, bool) {
-	a, ok := p[name]
-	if !ok {
-		return "", false
-	}
-
-	s, ok := a.(string)
-	if !ok {
-		return "", false
-	}
-
-	return s, true
-}
-
-func (p Properties) GetDefault(name, def string) string {
-	get, ok := p.Get(name)
-	if ok {
-		return get
-	}
-
-	return def
-}
-
-func (p Properties) GetBool(name string) (bool, bool) {
-	v, ok := p.Get(name)
-	if !ok {
-		return false, false
-	}
-
-	if v == "true" {
-		return true, true
-	}
-
-	if v == "false" {
-		return false, true
-	}
-
-	return false, false
-}
-
-func (p Properties) GetBoolDefault(name string, def bool) bool {
-	get, ok := p.GetBool(name)
-	if ok {
-		return get
-	}
-
-	return def
 }

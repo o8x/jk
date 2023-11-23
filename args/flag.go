@@ -9,18 +9,16 @@ import (
 type HookFunc func(int, []string) error
 
 type Flag struct {
-	Name         []string `json:"name"`
-	Description  string   `json:"description"`
-	PropertyMode bool     `json:"property_mode"`
-	Default      []string `json:"default"`
-	Required     bool     `json:"required"`
-	Env          []string `json:"env"`
-	NoValue      bool     `json:"no_value"`
-	SingleValue  bool     `json:"single_value"`
-	HookFunc     HookFunc
-	values       []string
-	properties   Properties
-	exist        bool
+	Name        []string `json:"name"`
+	Description string   `json:"description"`
+	Default     []string `json:"default"`
+	Required    bool     `json:"required"`
+	Env         []string `json:"env"`
+	NoValue     bool     `json:"no_value"`
+	SingleValue bool     `json:"single_value"`
+	HookFunc    HookFunc
+	values      []string
+	exist       bool
 }
 
 func (a *Flag) JoinName() string {
@@ -121,14 +119,6 @@ func (a *Flag) GetInt64s() ([]int64, error) {
 	}
 
 	return result, nil
-}
-
-func (a *Flag) GetProperties() Properties {
-	if !a.PropertyMode {
-		return nil
-	}
-
-	return a.properties
 }
 
 func (a *Flag) Get() (string, bool) {

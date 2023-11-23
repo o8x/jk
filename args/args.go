@@ -174,19 +174,6 @@ func (a *Args) DumpExit() {
 			}
 		}
 
-		if arg.PropertyMode {
-			arg.properties = Properties{}
-			for _, value := range arg.values {
-				k, v, found := strings.Cut(value, "=")
-				if found {
-					arg.properties[k] = v
-					continue
-				}
-
-				arg.properties[value] = ""
-			}
-		}
-
 		if arg.HookFunc != nil {
 			if err := arg.HookFunc(len(arg.values), arg.values); err != nil {
 				b.WriteString(fmt.Sprintf("%s hook error: %v", arg.Name[0], err))
@@ -393,30 +380,12 @@ func (a *Args) Parse() error {
 			}
 		}
 
-		if arg.PropertyMode {
-			arg.properties = Properties{}
-			for _, value := range arg.values {
-				k, v, found := strings.Cut(value, "=")
-				if found {
-					arg.properties[k] = v
-					continue
-				}
-
-				arg.properties[value] = ""
-			}
-
-			// 生成缓存
-			for _, n := range arg.Name {
-				a.cacheMap[n] = arg.properties
-			}
-		} else {
-			// 生成缓存
-			for _, n := range arg.Name {
-				if len(arg.values) == 1 {
-					a.cacheMap[n] = arg.values[0]
-				} else {
-					a.cacheMap[n] = arg.values
-				}
+		// 生成缓存
+		for _, n := range arg.Name {
+			if len(arg.values) == 1 {
+				a.cacheMap[n] = arg.values[0]
+			} else {
+				a.cacheMap[n] = arg.values
 			}
 		}
 
