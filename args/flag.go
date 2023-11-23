@@ -9,20 +9,19 @@ import (
 type HookFunc func(int, []string) error
 
 type Flag struct {
-	Name             []string `json:"name"`
-	Description      string   `json:"description"`
-	PropertyMode     bool     `json:"property_mode"`
-	Default          []string `json:"default"`
-	Required         bool     `json:"required"`
-	Env              []string `json:"env"`
-	Error            error    `json:"error_message"`
-	NoValue          bool     `json:"no_value"`
-	ValuesOnlyInEnum []string `json:"value_only_in_enum"`
-	SingleValue      bool     `json:"single_value"`
-	HookFunc         HookFunc
-	values           []string
-	properties       Properties
-	exist            bool
+	Name         []string `json:"name"`
+	Description  string   `json:"description"`
+	PropertyMode bool     `json:"property_mode"`
+	Default      []string `json:"default"`
+	Required     bool     `json:"required"`
+	Env          []string `json:"env"`
+	Error        error    `json:"error_message"`
+	NoValue      bool     `json:"no_value"`
+	SingleValue  bool     `json:"single_value"`
+	HookFunc     HookFunc
+	values       []string
+	properties   Properties
+	exist        bool
 }
 
 func (a *Flag) JoinName() string {
@@ -31,10 +30,6 @@ func (a *Flag) JoinName() string {
 
 func (a *Flag) JoinDefault() string {
 	return strings.Join(a.Default, ",")
-}
-
-func (a *Flag) JoinEnum() string {
-	return strings.Join(a.ValuesOnlyInEnum, ",")
 }
 
 func (a *Flag) BindInt64(v *int64) *Flag {

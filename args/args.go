@@ -176,22 +176,6 @@ func (a *Args) DumpExit() {
 			}
 		}
 
-		if arg.ValuesOnlyInEnum != nil {
-			in := 0
-			for _, v := range arg.values {
-				for _, it := range arg.ValuesOnlyInEnum {
-					if v == it {
-						in++
-					}
-				}
-			}
-
-			if in != len(arg.values) {
-				b.WriteString(fmt.Sprintf("\terror: flag %s only one value in '%s' can be selected", arg.JoinName(), arg.JoinEnum()))
-				b.WriteString("\n")
-			}
-		}
-
 		if arg.PropertyMode {
 			arg.properties = Properties{}
 			for _, value := range arg.values {
@@ -324,9 +308,6 @@ func (a *Args) Help(err error) string {
 		b.WriteString("\n")
 
 		b.WriteString(fmt.Sprintf("        %s", it.Description))
-		if it.ValuesOnlyInEnum != nil {
-			b.WriteString(fmt.Sprintf(" (enum: %s)", it.JoinEnum()))
-		}
 
 		if it.Default != nil {
 			b.WriteString(fmt.Sprintf(" (default: %s)\n", it.JoinDefault()))
@@ -422,21 +403,6 @@ func (a *Args) Parse() error {
 		if arg.SingleValue && !arg.NoValue {
 			if len(arg.values) > 1 || len(arg.values) == 0 {
 				return fmt.Errorf("flag %s only allow one value", arg.JoinName())
-			}
-		}
-
-		if arg.ValuesOnlyInEnum != nil {
-			in := 0
-			for _, v := range arg.values {
-				for _, it := range arg.ValuesOnlyInEnum {
-					if v == it {
-						in++
-					}
-				}
-			}
-
-			if in != len(arg.values) {
-				return fmt.Errorf("flag %s only one value in '%s' can be selected", arg.JoinName(), arg.JoinEnum())
 			}
 		}
 
