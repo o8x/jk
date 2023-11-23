@@ -16,7 +16,7 @@ type Flag struct {
 	Env         []string `json:"env"`
 	NoValue     bool     `json:"no_value"`
 	SingleValue bool     `json:"single_value"`
-	HookFunc    HookFunc
+	HookFuncs   []HookFunc
 	Values      []string
 	Exist       bool
 }

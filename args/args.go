@@ -175,10 +175,12 @@ func (a *Args) DumpExit() {
 			}
 		}
 
-		if arg.HookFunc != nil {
-			if err := arg.HookFunc(arg); err != nil {
-				b.WriteString(fmt.Sprintf("%s hook error: %v", arg.Name[0], err))
-				b.WriteString("\n")
+		if arg.HookFuncs != nil {
+			for i, fn := range arg.HookFuncs {
+				if err := fn(arg); err != nil {
+					b.WriteString(fmt.Sprintf("%s hook %d error: %v", arg.Name[0], i, err))
+					b.WriteString("\n")
+				}
 			}
 		}
 	}
@@ -390,9 +392,11 @@ func (a *Args) Parse() error {
 			}
 		}
 
-		if arg.HookFunc != nil {
-			if err := arg.HookFunc(arg); err != nil {
-				return err
+		if arg.HookFuncs != nil {
+			for _, fn := range arg.HookFuncs {
+				if err := fn(arg); err != nil {
+					return err
+				}
 			}
 		}
 	}

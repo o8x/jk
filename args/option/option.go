@@ -11,39 +11,39 @@ func Merge(list []*flag.Flag, flags ...*flag.Flag) []*flag.Flag {
 	return append(list, flags...)
 }
 
-func Option(name string, def string, desc string, fn flag.HookFunc) *flag.Flag {
-	a := Required(name, desc, fn)
+func Option(name string, def string, desc string, fn ...flag.HookFunc) *flag.Flag {
+	a := Required(name, desc, fn...)
 	a.Default = []string{def}
 	a.Required = false
 	return a
 }
 
-func Required(name string, desc string, fn flag.HookFunc) *flag.Flag {
+func Required(name string, desc string, fn ...flag.HookFunc) *flag.Flag {
 	return &flag.Flag{
 		Name:        []string{name},
 		Description: desc,
 		Required:    true,
 		Env:         []string{strings.ToUpper(fmt.Sprintf("A%s", strings.TrimPrefix(name, "--")))},
 		SingleValue: true,
-		HookFunc:    fn,
+		HookFuncs:   fn,
 	}
 }
 
-func Default(name string, def string, desc string, fn flag.HookFunc) *flag.Flag {
-	a := Required(name, desc, fn)
+func Default(name string, def string, desc string, fn ...flag.HookFunc) *flag.Flag {
+	a := Required(name, desc, fn...)
 	a.Default = []string{def}
 	return a
 }
 
-func Defaults(name string, def []string, desc string, fn flag.HookFunc) *flag.Flag {
-	a := Required(name, desc, fn)
+func Defaults(name string, def []string, desc string, fn ...flag.HookFunc) *flag.Flag {
+	a := Required(name, desc, fn...)
 	a.Default = def
 	a.Required = true
 	return a
 }
 
-func NoValue(name string, desc string, fn flag.HookFunc) *flag.Flag {
-	a := Required(name, desc, fn)
+func NoValue(name string, desc string, fn ...flag.HookFunc) *flag.Flag {
+	a := Required(name, desc, fn...)
 	a.NoValue = true
 	a.Required = false
 	return a
