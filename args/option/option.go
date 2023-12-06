@@ -2,6 +2,7 @@ package option
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/o8x/jk/v2/args/flag"
@@ -58,6 +59,23 @@ func BindInt64(v *int64) flag.HookFunc {
 		}
 
 		return fmt.Errorf("unable to convert '%s' to int64", f.JoinName())
+	}
+}
+
+func BindFloat64(v *float64) flag.HookFunc {
+	return func(f *flag.Flag) error {
+		val, ok := f.Get()
+		if ok {
+			float, err := strconv.ParseFloat(val, 0)
+			if err != nil {
+				return err
+			}
+
+			*v = float
+			return nil
+		}
+
+		return fmt.Errorf("unable to convert '%s' to float64", f.JoinName())
 	}
 }
 

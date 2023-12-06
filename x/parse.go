@@ -5,6 +5,10 @@ import (
 	"strconv"
 )
 
+func Ptr[T any](a T) *T {
+	return &a
+}
+
 func ParseInt(s string, def int) int {
 	return int(ParseInt64(s, int64(def)))
 }
