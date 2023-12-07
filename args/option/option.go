@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/o8x/jk/v2/args/ini"
+
 	"github.com/o8x/jk/v2/args/flag"
 )
 
@@ -104,5 +106,27 @@ func BindString(v *string) flag.HookFunc {
 		}
 
 		return fmt.Errorf("unable to convert '%s' to string", f.JoinName())
+	}
+}
+
+func BindIni(key string) flag.HookFunc {
+	return func(f *flag.Flag) error {
+		if ini.Get() == nil {
+			return nil
+		}
+
+		s := ""
+		k := ""
+
+		split := strings.Split(key, ".")
+		if len(split) == 1 {
+			k = key
+		} else {
+			s = split[0]
+			k = split[1]
+		}
+
+		f.Values = []string{ini.Get().Section(s).Key(k).String()}
+		return nil
 	}
 }
