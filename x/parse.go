@@ -24,3 +24,12 @@ func ParseInt64(s any, def int64) int64 {
 
 	return l
 }
+
+func ParseFloat64(s any, def float64) float64 {
+	l, err := strconv.ParseFloat(fmt.Sprintf("%v", s), 10)
+	if err != nil {
+		return def
+	}
+
+	return l
+}
