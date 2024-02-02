@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"io"
 	"os"
 
@@ -18,8 +19,16 @@ func UseLogger(l *logrus.Logger) {
 	std = l
 }
 
+func WithContext(ctx context.Context) *logrus.Entry {
+	return std.WithContext(ctx)
+}
+
 func UseDefault() {
 	UseLogger(NewFile("info", "log/jk.log"))
+}
+
+func UseStdout() {
+	UseLogger(New(logrus.DebugLevel, os.Stdout))
 }
 
 func NewFile(level string, out string) *logrus.Logger {
